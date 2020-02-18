@@ -5,12 +5,12 @@ ENV LC_CTYPE C.UTF-8
 # disable user-prompts for build
 ARG DEBIAN_FRONTEND=noninteractive
 # enable multiarch for 32bit support
-RUN dpkg --add-architecture i386 && \
-    apt-get update
+RUN dpkg --add-architecture i386 && apt-get update
 
-# install basics
-RUN apt-get install -y vim \
+# install basicsi, debugging, sys tools, and build essentials
+RUN apt-get update && apt-get install -y vim \
     curl \
+    less \
     wget \
     git \
     netcat \
@@ -18,10 +18,14 @@ RUN apt-get install -y vim \
     dnsutils \
     net-tools \
     nmap \
-    binwalk
-
-# build essentials & libraries
-RUN apt-get install -y build-essential \
+    binwalk \
+    gdb \
+    gdb-multiarch \
+    ltrace \
+    strace \
+    procps \
+    jq \
+    build-essential \
     gcc-multilib \
     nasm \
     libssl-dev \
@@ -30,32 +34,32 @@ RUN apt-get install -y build-essential \
     libdb-dev \
     libxt-dev \
     libxaw7-dev \
-    libc6:i386 \
-    libncurses5:i386 \
-    libstdc++6:i386
-
-# debugging & sys tools
-RUN apt-get install -y gdb \
-    gdb-multiarch \
-    ltrace \
-    strace \
-    procps \
-    jq
-
-# python setup
-RUN apt-get install -y python \
+#    libc6:i386 \
+#    libncurses5:i386 \
+#    libstdc++6:i386 \
+    python \
     python3 \
     python-pip \
     python3-pip \
-    python3-dev
-RUN pip install capstone requests pwntools r2pipe
-RUN pip3 install pwntools keystone-engine unicorn capstone ropper
-
-# ruby setup
-RUN apt-get install -y ruby \
+    python3-dev \
+    ruby \
     ruby-dev \
-    rubygems
-RUN gem install one_gadget seccomp-tools
+    rubygems \
+    && apt-get clean
+
+# python & ruby packages 
+RUN pip install capstone \ 
+    requests \
+    pwntools \
+    r2pipe \
+    angr
+RUN pip3 install pwntools \
+    keystone-engine \
+    unicorn \
+    capstone \
+    ropper
+RUN gem install one_gadget \
+    seccomp-tools
 
 # other tools from github
 RUN mkdir tools && cd tools && \
